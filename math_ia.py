@@ -19,6 +19,10 @@ dataset[['director', 'cast', 'country']] = dataset[['director', 'cast', 'country
 dataset.dropna(subset=['rating', 'duration', 'date_added'], inplace=True)
 
 print(dataset.describe(include=['object']))
+print(f'Mean of Release Year: {dataset["release_year"].mean()}')
+print(f'Median of Release Year: {dataset["release_year"].median()}')
+print(f'Mode of Release Year: {dataset["release_year"].mode()}')
+
 print(f'Dataset shape: {dataset.shape}')
 print(f'Number of duplicated values: {dataset.duplicated().sum()}')
 
@@ -55,12 +59,12 @@ lr,ur=remove_outlier(dataset['rating'])
 dataset['rating']=np.where(dataset['rating']>ur,ur,dataset['rating'])
 dataset['rating']=np.where(dataset['rating']<lr,lr,dataset['rating'])
 
-plt.figure(figsize=(7.5, 4.5))
-sns.boxplot(dataset['rating'],whis=2)
-plt.title('Box and Whisker Plot of Ratings')
-plt.show()
-sns.violinplot(dataset['rating'])
-plt.title('Violin Plot')
+rating_counts = dataset['rating'].value_counts()
+
+plt.figure(figsize=(8, 8))
+plt.pie(rating_counts, labels=rating_counts.index, autopct='%1.1f%%', startangle=90, colors=sns.color_palette('Set3', n_colors=len(rating_counts)))
+plt.title('Distribution of Movies by Age Rating')
+plt.axis('equal')  # Equal aspect ratio ensures that pie chart is circular.
 plt.show()
 
 dataset['duration'] = dataset['duration'].apply(lambda x: int(str(x).replace(' min', '')) if 'min' in str(x) else 0)
@@ -81,10 +85,15 @@ plt.ylabel('Genres')
 plt.show()
 
 plt.figure(figsize=(12, 8))
-correlation = dataset.corr(numeric_only=True)
-sns.heatmap(correlation, annot=True, cmap='coolwarm', fmt='.2f')
-plt.title('Correlation Heatmap of Encoded Features')
+
+# Selecting two columns for correlation (e.g., release_year and duration)
+correlation = dataset[['release_year', 'duration']].corr()
+
+# Plotting the heatmap for the selected columns
+sns.heatmap(correlation, annot=True, cmap='coolwarm', fmt='.2f', cbar=True)
+plt.title('Correlation Heatmap Between Release Year and Duration')
 plt.show()
+
 
 plt.figure(figsize=(12, 6))
 top_countries = dataset['country'].value_counts().head(10)
