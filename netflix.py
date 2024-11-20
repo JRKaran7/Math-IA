@@ -59,10 +59,21 @@ lr,ur=remove_outlier(dataset['rating'])
 dataset['rating']=np.where(dataset['rating']>ur,ur,dataset['rating'])
 dataset['rating']=np.where(dataset['rating']<lr,lr,dataset['rating'])
 
+# Get value counts of the ratings
 rating_counts = dataset['rating'].value_counts()
+# Map encoded values back to original labels
+label_mapping = dict(zip(le.transform(le.classes_), le.classes_))
+rating_labels = rating_counts.index.map(label_mapping)
 
+# Plot pie chart
 plt.figure(figsize=(8, 8))
-plt.pie(rating_counts, labels=rating_counts.index, autopct='%1.1f%%', startangle=90, colors=sns.color_palette('Set3', n_colors=len(rating_counts)))
+plt.pie(
+    rating_counts, 
+    labels=rating_labels,  # Use original labels
+    autopct='%1.1f%%', 
+    startangle=90, 
+    colors=sns.color_palette('Set3', n_colors=len(rating_counts))
+)
 plt.title('Distribution of Movies by Age Rating')
 plt.axis('equal')  # Equal aspect ratio ensures that pie chart is circular.
 plt.show()
