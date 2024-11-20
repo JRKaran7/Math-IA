@@ -103,7 +103,35 @@ plt.ylabel('Number of Titles')
 plt.xticks(rotation=45)
 plt.show()
 
+# Ensure date_added is in datetime format
+dataset['date_added'] = pd.to_datetime(dataset['date_added'], errors='coerce')
+# Extract the year from date_added
 dataset['year_added'] = dataset['date_added'].dt.year
+# Group by year_added and type, and count occurrences
+type_counts = dataset.groupby(["year_added", "type"]).size().reset_index(name='count')
+print(type_counts)
+# Plotting
+plt.figure(figsize=(10, 6))
+scatter = plt.scatter(
+    type_counts['year_added'], 
+    type_counts['count'], 
+    c=type_counts['type'].map({'Movie': 'blue', 'TV Show': 'green'}), 
+    alpha=0.7, 
+    label='Data points'
+)
+# Add labels and title
+plt.title('Scatterplot of Content Type Added Per Year', fontsize=14)
+plt.xlabel('Year Added', fontsize=12)
+plt.ylabel('Count', fontsize=12)
+# Add a legend
+legend_elements = [
+    plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Movie'),
+    plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='green', markersize=10, label='TV Show')
+]
+plt.legend(handles=legend_elements, title="Type", fontsize=10)
+# Show plot
+plt.show()
+
 plt.figure(figsize=(10, 6))
 sns.histplot(dataset['year_added'].dropna(), kde=True, bins=15)
 plt.title('Content Added by Year')
